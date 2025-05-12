@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
+import random
+import string
 import secrets  # Improved key generation method
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 # Store users and their keys
 user_verified = {}
@@ -11,6 +11,13 @@ user_verified = {}
 # Generate a secure unique key
 def generate_key():
     return secrets.token_urlsafe(16)  # Cryptographically secure key generation
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'  # Allow all origins, or set your specific domain
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
+    return response
 
 @app.route('/generate_key', methods=['POST'])
 def generate_verification_key():

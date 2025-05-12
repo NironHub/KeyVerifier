@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import random
 import string
 from flask_cors import CORS
+import secrets  # Improved key generation method
 
 app = Flask(__name__)
 CORS(app)
@@ -9,9 +10,9 @@ CORS(app)
 # Store users and their keys
 user_verified = {}
 
-# Generate a unique key
+# Generate a secure unique key
 def generate_key():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+    return secrets.token_urlsafe(16)  # Cryptographically secure key generation
 
 @app.route('/generate_key', methods=['POST'])
 def generate_verification_key():
@@ -31,6 +32,9 @@ def verify_key():
     data = request.json
     user_id = data.get('user_id')
     key = data.get('key')
+    
+    if not user_id or not key:
+        return jsonify({'error': 'Both user_id and key are required'}), 400
     
     if user_verified.get(user_id) == key:
         return jsonify({'success': True}), 200
